@@ -1,0 +1,11 @@
+node_modules
+dist
+dev-dist
+# Downloaded by scripts/fetch-models.js on `npm install` (large binaries)
+public/models/
+public/wasm/
+coverage
+.DS_Store
+*.log
+.env*
+screenshots/
