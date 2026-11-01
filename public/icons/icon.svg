@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="BedAlarm">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#24204a"/>
+      <stop offset="1" stop-color="#0b0d17"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd27a"/>
+      <stop offset="1" stop-color="#ff9a3c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#sky)"/>
+  <!-- rising sun with a clock face -->
+  <circle cx="256" cy="300" r="132" fill="url(#sun)"/>
+  <path d="M256 300 V214 M256 300 L316 330" stroke="#1b1204" stroke-width="22" stroke-linecap="round" fill="none"/>
+  <circle cx="256" cy="300" r="14" fill="#1b1204"/>
+  <!-- alarm bells -->
+  <path d="M132 196 a64 64 0 0 1 72 -62" stroke="#ffb547" stroke-width="22" stroke-linecap="round" fill="none"/>
+  <path d="M380 196 a64 64 0 0 0 -72 -62" stroke="#ffb547" stroke-width="22" stroke-linecap="round" fill="none"/>
+  <!-- horizon / bed -->
+  <rect x="64" y="368" width="384" height="80" rx="24" fill="#151a2c"/>
+  <rect x="64" y="368" width="384" height="14" rx="7" fill="#7c8cff"/>
+</svg>

@@ -1,0 +1,32 @@
+{
+  "name": "bedalarm",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A privacy-first PWA alarm you silence by scanning an object and finishing a short camera-counted morning routine.",
+  "scripts": {
+    "setup:assets": "node scripts/fetch-models.js",
+    "postinstall": "node scripts/fetch-models.js",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "smoke": "node scripts/smoke.js"
+  },
+  "dependencies": {
+    "@mediapipe/tasks-vision": "^1.2.0",
+    "localforage": "^1.10.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.5",
+    "zustand": "^5.0.16"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "^30.1.3",
+    "vite": "^8.3.5",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.0.5"
+  }
+}
