@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ExerciseStep from '../components/ExerciseStep.jsx';
 import BreathingOrb from '../components/BreathingOrb.jsx';
+import TaskPicker from '../components/TaskPicker.jsx';
 import { useHistoryStore } from '../store/historyStore.js';
 import { useAlarmStore } from '../store/alarmStore.js';
 import { useSettingsStore } from '../store/settingsStore.js';
-import { currentStep, recordProgress } from '../routine/runner.js';
+import { currentStep, recordProgress, pickStep, leaveStep, addExtraStep, isStepDone } from '../routine/runner.js';
 import { EXERCISES } from '../routine/exercises.js';
 import { silence, ring, disarmBedside } from '../platform/alarm.js';
 import { unlockAudio, playSuccess } from '../platform/sound.js';
@@ -55,8 +56,13 @@ export default function RoutineRun() {
   // Each new step starts with its intro card.
   useEffect(() => setStarted(false), [session?.stepIndex]);
 
-  if (!session || !step) return null;
-  const ex = EXERCISES[step.kind];
+  if (!session) return null;
+  const ex = step ? EXERCISES[step.kind] : null;
+
+  const save = (next) => useHistoryStore.getState().update(next);
+  const pick = (i) => save(pickStep(useHistoryStore.getState().active, i));
+  const backToMenu = () => save(leaveStep(useHistoryStore.getState().active));
+  const addExtra = (kind) => save(addExtraStep(useHistoryStore.getState().active, kind, 5));
 
   async function progress(done) {
     lastProgress.current = Date.now();
@@ -80,13 +86,23 @@ export default function RoutineRun() {
 
   return (
     <main className="screen screen--camera run">
-      <ol className="run__dots" aria-label={`Step ${session.stepIndex + 1} of ${session.steps.length}`}>
+      <ol className="run__dots" aria-label={`${session.steps.filter(isStepDone).length} of ${session.steps.length} tasks done`}>
         {session.steps.map((s, i) => (
-          <li key={i} className={i < session.stepIndex ? 'is-done' : i === session.stepIndex ? 'is-now' : ''} />
+          <li key={i} className={isStepDone(s) ? 'is-done' : i === session.stepIndex ? 'is-now' : ''} />
         ))}
       </ol>
 
-      {!started ? (
+      {step && (
+        <button type="button" className="btn btn--small btn--ghost run__tasks" onClick={backToMenu}>
+          ☰ Tasks
+        </button>
+      )}
+
+      {!step ? (
+        <div className="run__picker">
+          <TaskPicker session={session} onPick={pick} onAdd={addExtra} />
+        </div>
+      ) : !started ? (
         <section className="run__intro card">
           <p className="run__icon" aria-hidden="true">
             {ex.icon}

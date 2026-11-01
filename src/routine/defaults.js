@@ -18,8 +18,8 @@ export function defaultRoutines() {
       objectId: null,
       steps: [
         { id: 's1', kind: 'squat', target: 10 },
-        { id: 's2', kind: 'breathe', target: 5 },
-        { id: 's3', kind: 'pushup', target: 10 },
+        { id: 's2', kind: 'pushup', target: 10 },
+        { id: 's3', kind: 'breathe', target: 5 },
       ],
     },
   ];

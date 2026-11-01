@@ -4,14 +4,14 @@ import { useHistoryStore } from '../store/historyStore.js';
 import { EXERCISES } from '../routine/exercises.js';
 import { newId } from '../routine/runner.js';
 
-const stepsText = (steps) => steps.map((s) => `${s.target} ${EXERCISES[s.kind].name.toLowerCase()}`).join(' → ');
+const stepsText = (steps) => steps.map((s) => `${s.target} ${EXERCISES[s.kind].name.toLowerCase()}`).join(' · ');
 
 export default function Routines() {
   const navigate = useNavigate();
   const { routines, objects, saveRoutine } = useLibraryStore();
 
   async function create() {
-    const r = { id: newId('routine'), name: 'My routine', objectId: null, steps: [{ id: newId('step'), kind: 'squat', target: 5 }] };
+    const r = { id: newId('routine'), name: 'My routine', objectId: null, steps: [{ id: newId('step'), kind: 'squat', target: 5 }, { id: newId('step'), kind: 'breathe', target: 3 }] };
     await saveRoutine(r);
     navigate(`/routines/${r.id}`);
   }
@@ -29,7 +29,7 @@ export default function Routines() {
           + New
         </button>
       </header>
-      <p className="muted">A routine is what you do to switch the alarm off. Small is good — consistency beats intensity.</p>
+      <p className="muted">A routine is the set of tasks that switches the alarm off. You pick the order each morning, and the calm-down is always last. Small is good — consistency beats intensity.</p>
       <ul className="list">
         {routines.map((r) => {
           const obj = objects.find((o) => o.id === r.objectId);

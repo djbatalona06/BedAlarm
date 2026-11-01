@@ -42,7 +42,7 @@ export default function Ringing() {
       <h1 className="ring__time">{formatClock(now)}</h1>
       <p className="ring__msg">{alarm?.label || 'Good morning!'}</p>
       <p className="muted">
-        To stop the alarm: {object ? <>scan your <strong>{object.name}</strong>, then </> : ''}finish “{routine.name}”.
+        To stop the alarm: {object ? <>scan your <strong>{object.name}</strong>, then </> : ''}pick and finish the tasks in “{routine.name}”.
       </p>
       <button className="btn btn--primary btn--big" onClick={start} autoFocus>
         I’m up — let’s go

@@ -43,7 +43,7 @@ Session = {
   id: string, routineId: string, routineName: string, alarmId: string | null,
   startedAt: number, finishedAt: number | null,
   scan: 'pending' | 'object' | 'fallback' | 'none',
-  stepIndex: number,
+  stepIndex: number | null, // null = on the "pick your next task" menu
   steps: [{ kind, target, done, startedAt, finishedAt, bonus? }],
   status: 'in_progress' | 'complete'
 }
