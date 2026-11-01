@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { storage, KEYS } from './storage.js';
 import { defaultRoutines } from '../routine/defaults.js';
+import { normalizeRoutine } from '../routine/tasks.js';
 
 // Routines (step lists) and paired objects (things you scan to start).
 export const useLibraryStore = create((set, get) => ({
@@ -8,9 +9,10 @@ export const useLibraryStore = create((set, get) => ({
   objects: [],
   async hydrate() {
     const [routines, objects] = await Promise.all([storage.get(KEYS.routines), storage.get(KEYS.objects)]);
-    set({ routines: routines?.length ? routines : defaultRoutines(), objects: objects || [] });
+    set({ routines: (routines?.length ? routines : defaultRoutines()).map(normalizeRoutine), objects: objects || [] });
   },
-  saveRoutine(routine) {
+  saveRoutine(input) {
+    const routine = normalizeRoutine(input); // calm-down always last
     const exists = get().routines.some((r) => r.id === routine.id);
     const routines = exists ? get().routines.map((r) => (r.id === routine.id ? routine : r)) : [...get().routines, routine];
     set({ routines });

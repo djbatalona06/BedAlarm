@@ -1,4 +1,5 @@
 import { FALLBACK_EXTRA_SQUATS } from './defaults.js';
+import { isCalm, normalizeSteps } from './tasks.js';
 
 // A "session" is one run through a routine. These are pure functions so the
 // app can save the session after every rep and resume it after a reload.
@@ -15,14 +16,44 @@ export function startSession(routine, { now = Date.now(), alarmId = null } = {})
     startedAt: now,
     finishedAt: null,
     scan: routine.objectId ? 'pending' : 'none', // 'pending' | 'object' | 'fallback' | 'none'
-    stepIndex: 0,
-    steps: routine.steps.map((s) => ({ kind: s.kind, target: s.target, done: 0, startedAt: null, finishedAt: null })),
+    // `stepIndex` is the task you are doing right now. null = you are on the
+    // "pick your next task" menu. Nothing starts or advances by itself.
+    stepIndex: null,
+    steps: normalizeSteps(routine.steps).map((s) => ({ kind: s.kind, target: s.target, done: 0, startedAt: null, finishedAt: null })),
     status: 'in_progress',
   };
 }
 
-export const currentStep = (session) => session.steps[session.stepIndex] ?? null;
+export const currentStep = (session) => (session.stepIndex == null ? null : session.steps[session.stepIndex] ?? null);
 export const isComplete = (session) => session.status === 'complete';
+export const isStepDone = (step) => step.finishedAt != null || step.done >= step.target;
+
+/** Can this task be picked now? The calm-down unlocks once every exercise is done. */
+export function isStepOpen(session, index) {
+  const step = session.steps[index];
+  if (!step || isStepDone(step)) return false;
+  if (isCalm(step.kind)) return session.steps.every((s, i) => i === index || isCalm(s.kind) || isStepDone(s));
+  return true;
+}
+
+/** You choose the next task. Locked or finished tasks are ignored. */
+export function pickStep(session, index) {
+  return isStepOpen(session, index) && !isComplete(session) ? { ...session, stepIndex: index } : session;
+}
+
+/** Back to the task menu (progress on the task is kept). */
+export const leaveStep = (session) => (isComplete(session) ? session : { ...session, stepIndex: null });
+
+/** Add an extra exercise on top of the routine. It goes before the calm-down. */
+export function addExtraStep(session, kind, target) {
+  if (isCalm(kind) || isComplete(session)) return session;
+  const calmAt = session.steps.findIndex((s) => isCalm(s.kind));
+  const at = calmAt === -1 ? session.steps.length : calmAt;
+  const steps = session.steps.slice();
+  steps.splice(at, 0, { kind, target, done: 0, startedAt: null, finishedAt: null, bonus: true });
+  const stepIndex = session.stepIndex != null && session.stepIndex >= at ? session.stepIndex + 1 : session.stepIndex;
+  return { ...session, steps, stepIndex };
+}
 
 /** The object was scanned (or skipped via the fallback, which adds squats). */
 export function resolveScan(session, method) {
@@ -30,13 +61,13 @@ export function resolveScan(session, method) {
     return {
       ...session,
       scan: 'fallback',
-      steps: [{ kind: 'squat', target: FALLBACK_EXTRA_SQUATS, done: 0, startedAt: null, finishedAt: null, bonus: true }, ...session.steps],
+      steps: [{ kind: 'squat', target: FALLBACK_EXTRA_SQUATS, done: 0, startedAt: null, finishedAt: null, bonus: true }, ...session.steps], // exercise: the calm-down stays last
     };
   }
   return { ...session, scan: method };
 }
 
-/** Set progress on the current step; auto-advances when the target is hit. */
+/** Set progress on the current task. Hitting the target returns you to the task menu. */
 export function recordProgress(session, done, now = Date.now()) {
   const step = currentStep(session);
   if (!step || isComplete(session)) return session;
@@ -47,17 +78,17 @@ export function recordProgress(session, done, now = Date.now()) {
   return clamped >= step.target ? completeStep(next, now) : next;
 }
 
+/** Task finished: back to the menu, or the whole routine is complete. */
 export function completeStep(session, now = Date.now()) {
   const step = currentStep(session);
   if (!step) return session;
   const steps = session.steps.slice();
   steps[session.stepIndex] = { ...step, done: step.target, startedAt: step.startedAt ?? now, finishedAt: now };
-  const stepIndex = session.stepIndex + 1;
-  const finished = stepIndex >= steps.length;
+  const finished = steps.every(isStepDone);
   return {
     ...session,
     steps,
-    stepIndex,
+    stepIndex: null,
     status: finished ? 'complete' : 'in_progress',
     finishedAt: finished ? now : null,
   };

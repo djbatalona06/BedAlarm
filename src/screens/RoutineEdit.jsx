@@ -4,6 +4,7 @@ import { useLibraryStore } from '../store/libraryStore.js';
 import { useAlarmStore } from '../store/alarmStore.js';
 import { EXERCISES, EXERCISE_KINDS } from '../routine/exercises.js';
 import { newId } from '../routine/runner.js';
+import { isCalm } from '../routine/tasks.js';
 import Stepper from '../components/Stepper.jsx';
 
 export default function RoutineEdit() {
@@ -23,11 +24,12 @@ export default function RoutineEdit() {
 
   const set = (patch) => setRoutine((r) => ({ ...r, ...patch }));
   const setStep = (i, patch) => set({ steps: routine.steps.map((s, j) => (j === i ? { ...s, ...patch } : s)) });
-  const move = (i, dir) => {
+  const exerciseCount = routine.steps.filter((s) => !isCalm(s.kind)).length;
+  // New exercises slot in before the calm-down, which always stays last.
+  const addExercise = (kind) => {
+    const calmAt = routine.steps.findIndex((s) => isCalm(s.kind));
     const steps = routine.steps.slice();
-    const j = i + dir;
-    if (j < 0 || j >= steps.length) return;
-    [steps[i], steps[j]] = [steps[j], steps[i]];
+    steps.splice(calmAt === -1 ? steps.length : calmAt, 0, { id: newId('step'), kind, target: 5 });
     set({ steps });
   };
   const usedByAlarm = alarms.some((a) => a.routineId === routine.id);
@@ -80,7 +82,8 @@ export default function RoutineEdit() {
         </fieldset>
 
         <fieldset className="field">
-          <legend className="field__label">Steps</legend>
+          <legend className="field__label">Tasks</legend>
+          <p className="muted small">You pick the order each morning. The calm-down is always last.</p>
           <ol className="steps-edit">
             {routine.steps.map((s, i) => (
               <li key={s.id || i} className="steps-edit__item">
@@ -96,33 +99,26 @@ export default function RoutineEdit() {
                   onChange={(target) => setStep(i, { target })}
                 />
                 <div className="steps-edit__tools">
-                  <button type="button" className="btn btn--icon btn--ghost" onClick={() => move(i, -1)} aria-label="Move up" disabled={i === 0}>
-                    ↑
-                  </button>
-                  <button type="button" className="btn btn--icon btn--ghost" onClick={() => move(i, 1)} aria-label="Move down" disabled={i === routine.steps.length - 1}>
-                    ↓
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn--icon btn--ghost"
-                    onClick={() => set({ steps: routine.steps.filter((_, j) => j !== i) })}
-                    aria-label={`Remove ${EXERCISES[s.kind].name}`}
-                    disabled={routine.steps.length === 1}
-                  >
-                    ✕
-                  </button>
+                  {isCalm(s.kind) ? (
+                    <span className="tag">always last</span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn--icon btn--ghost"
+                      onClick={() => set({ steps: routine.steps.filter((_, j) => j !== i) })}
+                      aria-label={`Remove ${EXERCISES[s.kind].name}`}
+                      disabled={exerciseCount === 1}
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
               </li>
             ))}
           </ol>
           <div className="row">
-            {EXERCISE_KINDS.map((k) => (
-              <button
-                key={k}
-                type="button"
-                className="btn btn--small"
-                onClick={() => set({ steps: [...routine.steps, { id: newId('step'), kind: k, target: k === 'breathe' ? 3 : 5 }] })}
-              >
+            {EXERCISE_KINDS.filter((k) => !isCalm(k)).map((k) => (
+              <button key={k} type="button" className="btn btn--small" onClick={() => addExercise(k)}>
                 + {EXERCISES[k].name}
               </button>
             ))}

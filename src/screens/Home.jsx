@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAlarmStore } from '../store/alarmStore.js';
 import { useLibraryStore } from '../store/libraryStore.js';
@@ -6,6 +7,9 @@ import { useHistoryStore } from '../store/historyStore.js';
 import { nextAlarm, formatCountdown, DAY_LABELS } from '../platform/schedule.js';
 import { armBedside, ring, requestNotifyPermission } from '../platform/alarm.js';
 import { useClock, formatClock, formatAlarmTime } from '../hooks/useClock.js';
+import { exerciseReps, withExerciseReps } from '../routine/tasks.js';
+import { EXERCISES } from '../routine/exercises.js';
+import CometDial from '../components/CometDial.jsx';
 
 function daysText(days) {
   if (!days.length) return 'Once';
@@ -19,13 +23,20 @@ export default function Home() {
   const now = useClock(15000);
   const navigate = useNavigate();
   const { alarms, saveAlarm, testRing } = useAlarmStore();
-  const routines = useLibraryStore((s) => s.routines);
-  const objects = useLibraryStore((s) => s.objects);
+  const { routines, objects, saveRoutine } = useLibraryStore();
   const { settings, update } = useSettingsStore();
   const active = useHistoryStore((s) => s.active);
   const next = nextAlarm(alarms, now);
   const routineName = (id) => routines.find((r) => r.id === id)?.name ?? 'Tiny wake-up';
   const objectFor = (routineId) => objects.find((o) => o.id === routines.find((r) => r.id === routineId)?.objectId);
+
+  // The dial sets how many reps each exercise needs in the routine that rings next.
+  const dialRoutine = routines.find((r) => r.id === (next?.alarm.routineId ?? alarms[0]?.routineId)) ?? routines[0];
+  const savedReps = exerciseReps(dialRoutine);
+  const [reps, setReps] = useState(savedReps ?? 5);
+  useEffect(() => {
+    if (savedReps != null) setReps(savedReps);
+  }, [savedReps, dialRoutine?.id]);
 
   async function goToBed() {
     await armBedside();
@@ -41,28 +52,13 @@ export default function Home() {
   }
 
   return (
-    <main className="screen">
+    <main className="screen home">
       <header className="topbar">
         <h1 className="brand">
           Bed<span>Alarm</span>
         </h1>
         <p className="topbar__clock">{formatClock(now)}</p>
       </header>
-
-      {!settings.onboarded && (
-        <section className="card card--hero" aria-labelledby="welcome">
-          <h2 id="welcome">Wake up by moving 🌅</h2>
-          <ol className="steps-list">
-            <li>Set an alarm and pick a tiny routine.</li>
-            <li>(Optional) Pair an object — like your coffee mug in the kitchen.</li>
-            <li>When it rings: scan the object, do a few squats and breaths. Done!</li>
-          </ol>
-          <p className="muted small">No account. The camera only turns on when you start, and video never leaves your phone.</p>
-          <button className="btn btn--ghost" onClick={() => update({ onboarded: true })}>
-            Got it
-          </button>
-        </section>
-      )}
 
       {active && active.status === 'in_progress' && (
         <section className="card card--accent">
@@ -74,7 +70,7 @@ export default function Home() {
         </section>
       )}
 
-      <section className="card next" aria-live="polite">
+      <section className="card home__hero" aria-live="polite">
         {next ? (
           <>
             <p className="next__label">Next alarm</p>
@@ -90,13 +86,33 @@ export default function Home() {
             <p className="muted">Add one below to get started.</p>
           </>
         )}
+
+        {savedReps != null && (
+          <div className="home__dial">
+            <CometDial
+              value={reps}
+              min={1}
+              max={30}
+              step={1}
+              unit="reps"
+              label={`Reps per exercise for ${dialRoutine.name}`}
+              accent="#ffb547"
+              ink="#f1f3fb"
+              size={210}
+              onChange={setReps}
+              onChangeEnd={(n) => saveRoutine(withExerciseReps(dialRoutine, n))}
+            />
+            <p className="home__dial-label">Reps per exercise</p>
+            <p className="muted small">
+              {dialRoutine.steps.map((s) => EXERCISES[s.kind].name).join(', ')} — you pick the order when you wake up.
+            </p>
+          </div>
+        )}
+
         <button className="btn btn--primary btn--big" onClick={goToBed} disabled={!next}>
           🌙 Go to bed
         </button>
-        <p className="hint small">
-          Bedside mode keeps BedAlarm awake on your nightstand. Keep it plugged in, and set a backup alarm in your
-          phone’s clock app too.
-        </p>
+        <p className="hint small">Keep your phone plugged in on the nightstand, and set a backup alarm in its clock app too.</p>
       </section>
 
       <section aria-labelledby="alarms-h">
@@ -131,7 +147,22 @@ export default function Home() {
         </ul>
       </section>
 
-      <button className="btn btn--ghost" onClick={tryNow}>
+      <details className="how" open={!settings.onboarded || undefined}>
+        <summary>How BedAlarm works</summary>
+        <ol className="steps-list">
+          <li>Set an alarm and pick a tiny routine.</li>
+          <li>(Optional) Pair an object — like your coffee mug in the kitchen.</li>
+          <li>When it rings: scan the object, then choose your tasks one at a time. Breathing always comes last.</li>
+        </ol>
+        <p className="muted small">No account. The camera only turns on when you start, and video never leaves your phone.</p>
+        {!settings.onboarded && (
+          <button className="btn btn--small btn--ghost" onClick={() => update({ onboarded: true })}>
+            Got it
+          </button>
+        )}
+      </details>
+
+      <button className="btn btn--ghost home__try" onClick={tryNow}>
         ▶ Try a wake-up now
       </button>
     </main>

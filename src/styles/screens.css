@@ -304,3 +304,53 @@
 .week__dot { width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 2px solid var(--line); }
 .week li.is-on .week__dot { background: var(--accent); border-color: var(--accent); }
 .week li.is-on { color: var(--text); }
+
+/* ---------- Home ---------- */
+.home__hero { justify-items: center; text-align: center; gap: 0.75rem; padding: 1.5rem 1.1rem 1.25rem; background: linear-gradient(170deg, #1d2140, var(--bg-raised) 65%); }
+.home__hero .btn { justify-self: stretch; }
+.home__dial { display: grid; justify-items: center; gap: 0.15rem; margin: 0.25rem 0 0.5rem; }
+.home__dial-label { font-weight: 700; margin: 0; }
+.home__try { justify-self: center; }
+.how { background: var(--bg-raised); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.25rem 1rem; }
+.how summary { min-height: var(--tap); display: flex; align-items: center; font-weight: 600; cursor: pointer; }
+.how[open] { padding-bottom: 1rem; }
+.how > :not(summary) { margin-top: 0.6rem; margin-bottom: 0; }
+
+/* ---------- Task picker ---------- */
+.run__picker {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  display: grid;
+  align-content: center;
+  padding: calc(var(--safe-top) + 3rem) var(--gutter) calc(var(--safe-bottom) + 1.5rem);
+  background: radial-gradient(circle at 50% 30%, #1b2350, var(--bg) 75%);
+}
+.run__tasks { position: absolute; top: calc(var(--safe-top) + 0.5rem); right: calc(var(--safe-right) + 1rem); z-index: 9; background: rgb(0 0 0 / 0.45); }
+.picker { width: min(100%, 30rem); margin: 0 auto; display: grid; gap: 0.75rem; }
+.picker h1 { margin: 0; }
+.picker > p { margin: 0; }
+.picker__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+.picker__task {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-height: 4.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--bg-raised);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.picker__task:not(:disabled):hover { border-color: var(--accent); }
+.picker__task:disabled { opacity: 0.5; cursor: not-allowed; }
+.picker__task.is-done { opacity: 0.6; }
+.picker__icon { font-size: 1.75rem; }
+.picker__text { display: grid; gap: 0.1rem; }
+.picker__name { font-weight: 700; font-size: 1.1rem; }
+.picker__more { display: grid; gap: 0.4rem; }
+.picker__more p { margin: 0; }

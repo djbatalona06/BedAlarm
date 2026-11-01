@@ -37,7 +37,7 @@
 | **Routine run** | Step dots. Intro card per step (icon, target, setup tip). Then camera HUD (reps, form status, timer) or breathing orb. | Start · +1 rep (if tap-to-count or camera fails) |
 | **Results** | 🎉, totals, small wins. | Done |
 | **Routines** | Routine list with steps summary. | + New · Practise · edit |
-| **Routine edit** | Name, object picker, steps with −/+ counts, reorder, remove, add. | Pair a new object · Forget object · Save · Delete (blocked if an alarm uses it) |
+| **Routine edit** | Name, object picker, tasks with −/+ counts, remove, add (no reordering: you pick the order each morning; the calm-down is pinned last). | Pair a new object · Forget object · Save · Delete (blocked if an alarm uses it) |
 | **Pair** | Rear camera, live top-3 guesses with meters, name field. | Save object · Cancel |
 | **History** | 7-day dots, totals, recent mornings. | Export · Import |
 | **Settings** | Toggles + test buttons, privacy statement. | Delete all my data |
