@@ -96,8 +96,8 @@ export default function Home() {
               step={1}
               unit="reps"
               label={`Reps per exercise for ${dialRoutine.name}`}
-              accent="#ffb547"
-              ink="#f1f3fb"
+              accent="var(--accent)"
+              ink="var(--text)"
               size={210}
               onChange={setReps}
               onChangeEnd={(n) => saveRoutine(withExerciseReps(dialRoutine, n))}

@@ -28,6 +28,7 @@ export function defaultRoutines() {
 export const DEFAULT_SETTINGS = {
   onboarded: false,
   colorBlind: false,
+  theme: 'system', // 'system' | 'light' | 'dark'
   voice: true,
   captions: true,
   haptics: true,

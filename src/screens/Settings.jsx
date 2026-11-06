@@ -21,6 +21,11 @@ function Toggle({ label, hint, checked, onChange }) {
 }
 
 const SCALES = [1, 1.25, 1.5, 2];
+const THEME_CHOICES = [
+  { value: 'system', label: 'System' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
 
 export default function Settings() {
   const { settings, update } = useSettingsStore();
@@ -42,6 +47,26 @@ export default function Settings() {
       <header className="topbar">
         <h1 className="topbar__title">Settings</h1>
       </header>
+
+      <section className="card">
+        <h2>Appearance</h2>
+        <fieldset className="field">
+          <legend className="field__label">Theme</legend>
+          <div className="chips">
+            {THEME_CHOICES.map(({ value, label }) => (
+              <button
+                key={value}
+                className={`chip ${settings.theme === value ? 'chip--on' : ''}`}
+                aria-pressed={settings.theme === value}
+                onClick={() => update({ theme: value })}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <p className="muted small">System follows your phone. The bedside clock and camera screens always stay dark so they never light up your room.</p>
+        </fieldset>
+      </section>
 
       <section className="card">
         <h2>Sound & feel</h2>

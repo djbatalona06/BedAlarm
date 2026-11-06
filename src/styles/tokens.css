@@ -1,28 +1,26 @@
-/* Design tokens. Dark, calm, high contrast — it's used at 6am. */
+/*
+ * Design tokens.
+ *
+ * How theming works (read this first):
+ *   - <html data-theme="system|light|dark"> is set by index.html (before first paint)
+ *     and by src/platform/theme.js (after settings load).
+ *   - Dark is the default palette. Light overrides it.
+ *   - "system" = follow the phone's Light/Dark setting through prefers-color-scheme.
+ *   - Any element with the data-force-dark attribute always uses the dark palette
+ *     (bedside clock + camera screens, so they never glow bright at 6am).
+ *   - Components only use the semantic tokens below (--bg, --text, ...). Never raw colours.
+ *
+ * The LIGHT block is written twice (explicit light + system-light). Keep them identical.
+ */
+
+/* ---------- Theme-independent tokens ---------- */
 :root {
-  color-scheme: dark;
   --text-scale: 1;
-
-  --bg: #0b0d17;
-  --bg-raised: #151a2c;
-  --bg-sunken: #070910;
-  --line: #262d47;
-  --text: #f1f3fb;
-  --muted: #a3abc6;
-  --accent: #ffb547; /* sunrise */
-  --accent-ink: #1b1204;
-  --accent-2: #7c8cff;
-  --danger: #ff6b6b;
-
-  /* Form feedback (skeleton + status). Swapped in colour-blind mode. */
-  --good: #3ddc84;
-  --bad: #ff5c5c;
 
   --radius: 1rem;
   --radius-sm: 0.6rem;
   --tap: 3rem; /* 48px minimum touch target */
   --gutter: 1rem;
-  --shadow: 0 0.5rem 2rem rgb(0 0 0 / 0.35);
 
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -31,8 +29,135 @@
 
   --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-num: ui-rounded, 'SF Pro Rounded', system-ui, sans-serif;
+
+  /* Form feedback (skeleton + status). Swapped in colour-blind mode. */
+  --good: #3ddc84;
+  --bad: #ff5c5c;
+
+  /* Things drawn on top of the camera picture are always dark glass + white text. */
+  --camera-bg: #000;
+  --camera-scrim: rgb(0 0 0 / 0.55);
+  --camera-scrim-strong: rgb(0 0 0 / 0.85);
+  --camera-chip-bg: rgb(0 0 0 / 0.45);
+  --on-camera: #fff;
+  --on-camera-error: #ffd2d2;
+  --scan-frame: rgb(255 255 255 / 0.7);
+  --scan-dim: rgb(0 0 0 / 0.25);
+  --step-dot: rgb(255 255 255 / 0.25);
+  --caption-bg: rgb(0 0 0 / 0.75);
+  --caption-text: #fff;
+
+  /* Bedside (Night) screen: very dim, warm, no blue light. */
+  --night-bg: #000;
+  --night-clock: #8a6a3a;
+  --night-next: #6f6a80;
+  --night-dim: #4c4a5c;
+  --night-line: #24222e;
 }
 
+/* ---------- Dark palette (default) ---------- */
+:root,
+:root[data-theme='dark'],
+[data-force-dark] {
+  color-scheme: dark;
+
+  --bg: #0b0d17;
+  --bg-raised: #151a2c;
+  --bg-sunken: #070910;
+  --line: #262d47;
+  --text: #f1f3fb;
+  --muted: #a3abc6;
+
+  --accent: #ffb547; /* sunrise */
+  --accent-text: #ffb547; /* accent used as TEXT (links, active tab) */
+  --accent-ink: #1b1204; /* text on top of --accent */
+  --accent-2: #7c8cff;
+  --on-accent-2: #0b0d17;
+  --danger: #ff6b6b;
+
+  --surface-glass: rgb(11 13 23 / 0.85);
+  --shadow: 0 0.5rem 2rem rgb(0 0 0 / 0.35);
+
+  --hero-from: #1d2140;
+  --ring-from: #3a2a10;
+  --calm-from: #1b2350;
+
+  --switch-track: #262d47;
+  --switch-thumb: #f1f3fb;
+  --switch-thumb-on: #1b1204;
+
+  --orb-hi: #c4ccff;
+  --orb-lo: #3a3f9e;
+}
+
+/* ---------- Light palette (iOS "grouped" look) ---------- */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #f2f2f7;
+  --bg-raised: #ffffff;
+  --bg-sunken: #ececf1;
+  --line: rgb(60 60 67 / 0.2);
+  --text: #0b0d17;
+  --muted: #5f6068; /* 5.5:1 on --bg */
+
+  --accent: #ffb547;
+  --accent-text: #a65300; /* 4.8:1 on --bg, 5.4:1 on white */
+  --accent-ink: #1b1204;
+  --accent-2: #4f5fe0;
+  --on-accent-2: #ffffff;
+  --danger: #d70015;
+
+  --surface-glass: rgb(249 249 252 / 0.85);
+  --shadow: 0 0.5rem 2rem rgb(0 0 0 / 0.12);
+
+  --hero-from: #ffefd0;
+  --ring-from: #ffe2b0;
+  --calm-from: #e4e8ff;
+
+  --switch-track: #d1d1d6;
+  --switch-thumb: #ffffff;
+  --switch-thumb-on: #ffffff;
+
+  --orb-hi: #c4ccff;
+  --orb-lo: #3a3f9e;
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    color-scheme: light;
+
+    --bg: #f2f2f7;
+    --bg-raised: #ffffff;
+    --bg-sunken: #ececf1;
+    --line: rgb(60 60 67 / 0.2);
+    --text: #0b0d17;
+    --muted: #5f6068;
+
+    --accent: #ffb547;
+    --accent-text: #a65300;
+    --accent-ink: #1b1204;
+    --accent-2: #4f5fe0;
+    --on-accent-2: #ffffff;
+    --danger: #d70015;
+
+    --surface-glass: rgb(249 249 252 / 0.85);
+    --shadow: 0 0.5rem 2rem rgb(0 0 0 / 0.12);
+
+    --hero-from: #ffefd0;
+    --ring-from: #ffe2b0;
+    --calm-from: #e4e8ff;
+
+    --switch-track: #d1d1d6;
+    --switch-thumb: #ffffff;
+    --switch-thumb-on: #ffffff;
+
+    --orb-hi: #c4ccff;
+    --orb-lo: #3a3f9e;
+  }
+}
+
+/* Must come after the themes so it wins at equal specificity. */
 :root[data-colorblind='on'] {
   --good: #4da3ff;
   --bad: #ff9f1c;

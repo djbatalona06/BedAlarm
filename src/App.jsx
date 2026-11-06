@@ -4,6 +4,7 @@ import { hydrateAll } from './store/hydrate.js';
 import { useSettingsStore } from './store/settingsStore.js';
 import { useAlarmStore } from './store/alarmStore.js';
 import { startScheduler, stopScheduler, ring, notify } from './platform/alarm.js';
+import { applyTheme, subscribeSystemTheme } from './platform/theme.js';
 import TabBar from './components/TabBar.jsx';
 import Captions from './components/Captions.jsx';
 import Home from './screens/Home.jsx';
@@ -21,6 +22,9 @@ import Settings from './screens/Settings.jsx';
 
 // Full-screen moments hide the tab bar (progressive disclosure: one job per screen).
 const FOCUS_ROUTES = ['/night', '/ring', '/scan', '/pair', '/run', '/results'];
+// These always use the dark palette, even in Light mode: a bright bedside clock or
+// camera screen at 6am would hurt your eyes. (Ringing + Results follow your theme.)
+const FORCE_DARK_ROUTES = ['/night', '/scan', '/pair', '/run'];
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -55,6 +59,17 @@ export default function App() {
     root.dataset.colorblind = settings.colorBlind ? 'on' : 'off';
   }, [settings.textScale, settings.colorBlind]);
 
+  const forceDark = FORCE_DARK_ROUTES.some((r) => location.pathname.startsWith(r));
+
+  // Light / dark theme. Waits for `ready` so the default setting can't overwrite the
+  // saved choice (index.html already applied the saved choice before first paint).
+  useEffect(() => {
+    if (!ready) return undefined;
+    const apply = () => applyTheme(settings.theme, { forceDark });
+    apply();
+    return subscribeSystemTheme(apply); // phone switched Light/Dark while in "System"
+  }, [ready, settings.theme, forceDark]);
+
   if (!ready) {
     return (
       <main className="screen screen--center">
@@ -65,7 +80,7 @@ export default function App() {
 
   const focus = FOCUS_ROUTES.some((r) => location.pathname.startsWith(r));
   return (
-    <div className={`app ${focus ? 'app--focus' : ''}`}>
+    <div className={`app ${focus ? 'app--focus' : ''}`} data-force-dark={forceDark ? '' : undefined}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/alarms/:id" element={<AlarmEdit />} />
