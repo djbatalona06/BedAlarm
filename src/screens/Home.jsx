@@ -38,14 +38,16 @@ export default function Home() {
     if (savedReps != null) setReps(savedReps);
   }, [savedReps, dialRoutine?.id]);
 
+  const bedside = { screenOn: settings.keepScreenOn, helper: settings.keepAliveAudio };
+
   async function goToBed() {
-    await armBedside();
+    await armBedside(bedside);
     requestNotifyPermission();
     navigate('/night');
   }
 
   async function tryNow() {
-    await armBedside();
+    await armBedside(bedside);
     testRing();
     ring({ sound: settings.sound, vibrate: settings.haptics });
     navigate('/ring');

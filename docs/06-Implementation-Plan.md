@@ -24,6 +24,7 @@
 ## Phase 5 — Alarm ✅
 - [x] `platform/schedule.js` (pure, tested), `platform/alarm.js` adapter (bedside impl), wake lock, Web Audio, haptics, speech + captions.
 - [x] Home, Alarm edit, Night, Ringing; re-ring after 60 s idle; one snooze.
+- [x] Stay-awake backup: `platform/keepAlive.js` (silent loop + Media Session), live status + "Keep screen on" toggle on Night, Bedside mode settings, auto-lock tips.
 
 ## Phase 6 — Library, history, settings ✅
 - [x] Routines list/editor, History (week dots, totals, export/import), Settings.
@@ -41,6 +42,8 @@
 ## Manual test checklist (phone)
 - [ ] Install to home screen; airplane mode; app still opens and counts reps.
 - [ ] Bedside: set alarm 2 min ahead → Go to bed → screen stays on → rings.
+- [ ] Bedside: switch to another app and back → status returns to "● Screen will stay on".
+- [ ] Bedside with Low Power Mode / Battery Saver on → status shows the silent helper running; a "BedAlarm — bedside mode" card shows on the lock screen.
 - [ ] Pair a mug, then scan it from another angle — match within ~2 s.
 - [ ] Walk away mid-routine for 60 s → alarm rings again.
 - [ ] Kill the tab mid-routine → reopen → Resume keeps reps.

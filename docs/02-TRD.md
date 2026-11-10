@@ -19,7 +19,8 @@
 | API | Purpose | Fallback |
 |---|---|---|
 | `getUserMedia` | Camera (only after the user taps Start/Scan) | Tap-to-count button; "Can't scan?" bonus squats. |
-| Screen Wake Lock | Keep the nightstand screen on | Message: turn off auto-lock. |
+| Screen Wake Lock | Keep the nightstand screen on; re-requested every time the app comes back into view | Silent helper sound + message: turn off auto-lock. |
+| `<audio>` loop + Media Session | Backup when the wake lock is refused (Low Power Mode): a generated, inaudible looping sound with a lock-screen card, so the phone is slower to suspend the app | Message: turn off auto-lock. |
 | Web Audio | Generated alarm tone & chimes (no audio files) | — |
 | Vibration | Haptics | Silently ignored (iOS). |
 | SpeechSynthesis | Voice coach | Captions always shown. |
@@ -35,6 +36,7 @@
 ## Known platform limits
 - A PWA cannot ring a locked or closed phone. MVP = bedside mode (app open + wake lock + plugged in). All alarm calls go through `src/platform/alarm.js` so a Capacitor build can swap in `@capacitor/local-notifications` without touching screens.
 - iOS Safari: no Vibration API; Wake Lock supported from iOS 16.4 (installed PWA).
+- No background work: Periodic Background Sync (Chromium only, runs at most a few times a day) can't ring an alarm on time, and Push needs a server, which would break "no data leaves the device". Both are deliberately left out.
 
 ## Performance budget
 - Main JS ≤ 120 kB gzip (MediaPipe is code-split and only loaded when the camera is used).

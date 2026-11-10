@@ -37,6 +37,7 @@ function beep(c, { freq, start, dur, gain, type = 'sine', dest }) {
 export function startAlarmSound() {
   const c = audio();
   if (!c || alarmTimer) return;
+  if (c.state !== 'running') c.resume().catch(() => {}); // the phone may have paused it overnight
   alarmGain = c.createGain();
   alarmGain.gain.value = 0.15;
   alarmGain.gain.linearRampToValueAtTime(1, c.currentTime + 60);
