@@ -2,8 +2,9 @@
 // Alarm adapter. The rest of the app ONLY talks to this file.
 //
 // Today: "bedside" mode — the PWA stays open on the nightstand, a 1-second
-// ticker checks the schedule, the screen is kept on with the Wake Lock API,
-// and the ring is Web Audio + vibration.
+// ticker checks the schedule, the screen is kept on with the Wake Lock API
+// (backed up by a silent looping sound, see keepAlive.js), and the ring is
+// Web Audio + vibration.
 //
 // Later (native): wrap the app with Capacitor and swap the implementation of
 // armBedside/scheduleNative below for @capacitor/local-notifications so the
@@ -11,6 +12,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { isDue } from './schedule.js';
 import { keepAwake, allowSleep } from './wakeLock.js';
+import { startKeepAlive, stopKeepAlive } from './keepAlive.js';
 import { unlockAudio, startAlarmSound, stopAlarmSound } from './sound.js';
 import * as haptics from './haptics.js';
 
@@ -35,13 +37,19 @@ export function stopScheduler() {
 }
 
 /** "Going to bed" — must be called from a tap so audio is allowed later. */
-export async function armBedside() {
-  const audioOk = await unlockAudio();
-  const awake = await keepAwake();
-  return { audioOk, awake };
+export async function armBedside({ screenOn = true, helper = true } = {}) {
+  // Start all three straight away: browsers only allow sound "during" the tap,
+  // and waiting for one before starting the next can use that moment up.
+  const [audioOk, awake, helperOn] = await Promise.all([
+    unlockAudio(),
+    screenOn ? keepAwake() : false,
+    helper ? startKeepAlive({ icon: `${import.meta.env.BASE_URL}icons/icon-512.png` }) : false,
+  ]);
+  return { audioOk, awake, helperOn };
 }
 
 export async function disarmBedside() {
+  stopKeepAlive();
   await allowSleep();
 }
 

@@ -33,6 +33,8 @@ export const DEFAULT_SETTINGS = {
   captions: true,
   haptics: true,
   sound: true,
+  keepScreenOn: true, // bedside mode: ask the phone to keep the screen on
+  keepAliveAudio: true, // bedside mode: silent looping sound as a backup
   textScale: 1,
   allowTapCount: false,
   breathIn: 4,

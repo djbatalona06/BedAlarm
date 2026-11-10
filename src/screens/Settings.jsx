@@ -4,6 +4,7 @@ import { hydrateAll } from '../store/hydrate.js';
 import { unlockAudio, startAlarmSound, stopAlarmSound } from '../platform/sound.js';
 import { say } from '../platform/speech.js';
 import Stepper from '../components/Stepper.jsx';
+import StayAwakeTips from '../components/StayAwakeTips.jsx';
 
 function Toggle({ label, hint, checked, onChange }) {
   return (
@@ -81,6 +82,23 @@ export default function Settings() {
             🗣 Test voice
           </button>
         </div>
+      </section>
+
+      <section className="card">
+        <h2>Bedside mode</h2>
+        <Toggle
+          label="Keep screen on"
+          hint="Asks your phone not to dim or lock while the bedside clock is showing."
+          checked={settings.keepScreenOn}
+          onChange={(v) => update({ keepScreenOn: v })}
+        />
+        <Toggle
+          label="Silent helper sound"
+          hint="Plays a sound you can’t hear so your phone is less likely to put BedAlarm to sleep. It may pause music from other apps."
+          checked={settings.keepAliveAudio}
+          onChange={(v) => update({ keepAliveAudio: v })}
+        />
+        <StayAwakeTips />
       </section>
 
       <section className="card">

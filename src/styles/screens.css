@@ -155,6 +155,10 @@
 .night__clock { font-family: var(--font-num); font-size: clamp(4rem, 22vw, 9rem); font-weight: 300; color: var(--night-clock); margin: 0; line-height: 1; }
 .night__next { color: var(--night-next); font-size: 1.1rem; }
 .night__status { color: var(--night-dim); }
+.night__toggle { display: flex; align-items: center; gap: 0.5rem; min-height: var(--tap); color: var(--night-next); cursor: pointer; }
+.night__toggle input { width: 1.2rem; height: 1.2rem; accent-color: var(--night-clock); }
+.night__tips { color: var(--night-next); max-width: 26rem; text-align: left; }
+.night__tips summary { min-height: var(--tap); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .night__exit { color: var(--night-next); border-color: var(--night-line); margin-top: 2rem; }
 
 /* ---------- Ringing ---------- */
